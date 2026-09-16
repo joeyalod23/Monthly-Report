@@ -143,7 +143,17 @@
       res = await fetch(GOOGLE_SCRIPT_URL + "?" + q.toString(), { redirect: "follow" });
     }
     if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+    const text = await res.text();
+
+    /* Known Google behavior: write actions can execute & save but the /exec
+       echo comes back empty. Treat that as success and refresh. */
+    if (!text.trim()) {
+      const act = String(params.action || "");
+      if (["add", "update", "delete"].includes(act)) return { ok: true, soft: true };
+      throw new Error("Backend returned an empty response (HTTP " + res.status + ").");
+    }
+
+    const data = JSON.parse(text);
     if (!data.ok) throw new Error(data.error || "Unknown backend error");
     return data;
   }

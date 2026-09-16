@@ -73,13 +73,13 @@ function route(e) {
       return jsonOut(readSheet(p.sheet));
     }
     if (action === 'add' && HEADERS[p.sheet]) {
-      return jsonOut(withLock(function () { addRow(p.sheet, parseRow(p)); }));
+      return jsonOut(addRow(p.sheet, parseRow(p)));
     }
     if (action === 'update' && HEADERS[p.sheet]) {
-      return jsonOut(withLock(function () { updateRow(p.sheet, Number(p.rowNumber) || 0, parseRow(p)); }));
+      return jsonOut(updateRow(p.sheet, Number(p.rowNumber) || 0, parseRow(p)));
     }
     if (action === 'delete' && HEADERS[p.sheet]) {
-      return jsonOut(withLock(function () { deleteRow(p.sheet, Number(p.rowNumber) || 0); }));
+      return jsonOut(deleteRow(p.sheet, Number(p.rowNumber) || 0));
     }
     if (action === 'upload') {
       return jsonOut(uploadPhoto(p));
@@ -96,12 +96,6 @@ function jsonOut(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-function withLock(fn) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(30000);
-  try { return fn(); } finally { lock.releaseLock(); }
 }
 
 function parseRow(p) {
