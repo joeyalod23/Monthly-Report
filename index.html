@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Meeting Report</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128202;</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <div class="brand">&#128202; <span>Monthly Meeting Report</span></div>
+    <div class="topbar-right">
+      <span class="conn" id="connStatus"><span class="dot"></span><span id="connText">Connecting&hellip;</span></span>
+      <button class="btn btn-ghost" id="btnRefresh" title="Reload data from Google Sheets">&#8635; Refresh</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <nav class="sidenav" id="sidenav" aria-label="Main navigation">
+      <div class="sidenav-brand">&#128202; Monthly Meeting</div>
+      <a href="#" class="nav-link active" data-page="overview"><span class="ico">&#127968;</span> Overview</a>
+      <a href="#" class="nav-link" data-page="5S"><span class="ico">&#129692;</span> 5S of Project</a>
+      <a href="#" class="nav-link" data-page="Manpower"><span class="ico">&#129521;</span> Manpower</a>
+      <a href="#" class="nav-link" data-page="Contracts"><span class="ico">&#128209;</span> Contracts</a>
+      <a href="#" class="nav-link" data-page="Overtime"><span class="ico">&#9201;</span> Overtime</a>
+      <div class="sidenav-foot">Data: Google Sheets &amp; Drive<br>Frontend: GitHub Pages</div>
+    </nav>
+
+    <main class="main">
+
+      <!-- ============ OVERVIEW ============ -->
+      <section class="page active" id="page-overview">
+        <div class="page-head">
+          <div>
+            <h1>Overview</h1>
+            <p class="sub">Agenda / reports to prepare, per project</p>
+          </div>
+        </div>
+        <div id="setupWarning" class="alert alert-warn hidden">
+          <b>Setup needed.</b> Go to <code>js/config.js</code> and paste your Google Apps Script Web App URL
+          (and optional API key). See <code>README.md</code> for the 5-minute setup.
+        </div>
+        <div class="stat-grid" id="overviewStats"></div>
+        <div class="card ov-card">
+          <h3>Overtime Trend &mdash; July vs August</h3>
+          <div id="otBars" class="ot-bars"></div>
+        </div>
+      </section>
+
+      <!-- ============ 5S ============ -->
+      <section class="page" id="page-5S">
+        <div class="page-head">
+          <div>
+            <h1>5S of Project</h1>
+            <p class="sub">Current photos of offices / barracks</p>
+          </div>
+          <button class="btn btn-primary" onclick="openEntryModal('5S')">&#65291; Add 5S Entry</button>
+        </div>
+        <div class="toolbar">
+          <label>Project filter <select class="filter" id="filter-5S"><option value="">All projects</option></select></label>
+          <span class="count" id="count-5S">0 entries</span>
+        </div>
+        <div class="card-grid" id="grid-5S"></div>
+      </section>
+
+      <!-- ============ MANPOWER ============ -->
+      <section class="page" id="page-Manpower">
+        <div class="page-head">
+          <div>
+            <h1>Manpower Headcount</h1>
+            <p class="sub">Current active / Balance PRF / Manpower transferred</p>
+          </div>
+          <button class="btn btn-primary" onclick="openEntryModal('Manpower')">&#65291; Add Manpower</button>
+        </div>
+        <div class="toolbar">
+          <label>Project filter <select class="filter" id="filter-Manpower"><option value="">All projects</option></select></label>
+          <span class="count" id="count-Manpower">0 entries</span>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Project</th><th class="num">Active</th><th class="num">Balance PRF</th>
+                  <th class="num">Transferred</th><th>As Of</th><th>Remarks</th><th class="act">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-Manpower"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTRACTS ============ -->
+      <section class="page" id="page-Contracts">
+        <div class="page-head">
+          <div>
+            <h1>Contracts</h1>
+            <p class="sub">Pending / Ongoing / Issues</p>
+          </div>
+          <button class="btn btn-primary" onclick="openEntryModal('Contracts')">&#65291; Add Contract</button>
+        </div>
+        <div class="toolbar">
+          <label>Project filter <select class="filter" id="filter-Contracts"><option value="">All projects</option></select></label>
+          <select class="filter" id="statusFilter-Contracts"><option value="">All status</option><option>Pending</option><option>Ongoing</option><option>Issues</option></select>
+          <span class="count" id="count-Contracts">0 entries</span>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Project</th><th>Contract</th><th>Status</th><th>Issue / Notes</th>
+                  <th>Updated</th><th>Remarks</th><th class="act">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-Contracts"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ OVERTIME ============ -->
+      <section class="page" id="page-Overtime">
+        <div class="page-head">
+          <div>
+            <h1>Overtime</h1>
+            <p class="sub">Monthly hours per project — pick any two months to compare</p>
+          </div>
+          <button class="btn btn-primary" onclick="openEntryModal('Overtime')">&#65291; Add OT Entry</button>
+        </div>
+        <div class="toolbar">
+          <label>Compare
+            <select class="filter" id="cmpA"></select>
+          </label>
+          <span class="cmp-vs">vs</span>
+          <label>
+            <select class="filter" id="cmpB"></select>
+          </label>
+          <label style="margin-left:auto">Project
+            <select class="filter" id="filter-Overtime"><option value="">All projects</option></select>
+          </label>
+          <span class="count" id="count-Overtime">0 entries</span>
+        </div>
+        <div class="card" id="otCompareCard"></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="tbl" id="table-Overtime">
+              <thead>
+                <tr>
+                  <th>Project</th><th>Year</th>
+                  <th data-month="0">Jan</th><th data-month="1">Feb</th><th data-month="2">Mar</th>
+                  <th data-month="3">Apr</th><th data-month="4">May</th><th data-month="5">Jun</th>
+                  <th data-month="6">Jul</th><th data-month="7">Aug</th><th data-month="8">Sep</th>
+                  <th data-month="9">Oct</th><th data-month="10">Nov</th><th data-month="11">Dec</th>
+                  <th>As Of</th><th class="act">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-Overtime"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============ ENTRY MODAL ============ -->
+  <div class="modal-overlay hidden" id="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add entry</h3>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <form id="entryForm" class="modal-body" novalidate></form>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" type="button" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" type="submit" form="entryForm" id="btnSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lb-close" onclick="closeLightbox()" aria-label="Close">&#10005;</button>
+    <img id="lbImg" alt="5S photo" />
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+
+  <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
