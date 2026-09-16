@@ -5,7 +5,7 @@ A responsive, mobile-friendly web app that loads your monthly-meeting agenda ite
 - 🧹 **5S of Project** — current photos of offices / barracks (photoupload)
 - 👷 **Manpower Headcount** — active / balance PRF / transferred
 - 📑 **Contracts** — pending / ongoing / issues
-- ⏱ **Overtime** — July vs August comparison (increasing / decreasing?)
+- ⏱ **Overtime** — a Jan–Dec hours matrix per project **per year**. Add each month's hours at its monthly meeting and compare *any two months* with a % change (increasing / decreasing).
 
 **Architecture**
 - Frontend: pure HTML/CSS/JS → runs for free on **GitHub Pages**
@@ -43,7 +43,8 @@ GitHub Pages (static site)  ──fetch/save──▶  Apps Script Web App  ─�
    - **Who has access:** `Anyone with Google account` *(or `Anyone`)*
    - Click **Deploy**, then **Authorize access** (accept the "not verified" prompt — this is your own script; choose *Advanced ▸ Go to project* if it appears).
    - Copy the **`/exec` URL** shown (e.g. `https://script.google.com/macros/s/AKfycb…/exec`).
-   - When you later edit `Code.gs`, re-deploy (Deploy ▸ Manage deployments ▸ ✎ ▸ New version).
+
+> **After any edit to `Code.gs` you must push a new version:** Deploy ▸ Manage deployments ▸ ✎ edit ▸ **Version: New** ▸ Deploy. The Overtime sheet below is auto-created (or auto-migrated from the old July/August layout) on first use.
 
 > The 4 sheets (`5S`, `Manpower`, `Contracts`, `Overtime`) are **created automatically** with the right headers the first time the app is used.
 
@@ -64,22 +65,17 @@ Use a spreadsheet **that the Apps Script can access**: either the spreadsheet wh
 
 ## 3. Put the site on GitHub (frontend runs in GitHub)
 
-1. Create a new repository on GitHub (e.g. `monthly-report`).
-2. Push this folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "Monthly Meeting Report"
-   git remote add origin https://github.com/<you>/<repo>.git
-   git branch -M main
-   git push -u origin main
-   ```
-3. Turn on **GitHub Pages** — easiest way:
-   *Repo ▸ Settings ▸ Pages ▸ Source ▸ **Deploy from a branch** ▸ `main` ▸ `/ (root)` ▸ Save.*
-   Your site appears at `https://<you>.github.io/<repo>/` in ~1 minute.
-   *(Alternative: keep the included `.github/workflows/pages-deploy.yml` and pick
-   Source = GitHub Actions instead.)*
-4. Every future push updates the site automatically.
+This project is already deployed: **https://joeyalod23.github.io/Monthly-Report/**
+
+Every future push to the repo auto-publishes the update (Pages is set to branch `master` / root):
+
+```bash
+git add .
+git commit -m "update"
+git push
+```
+
+*(If you re-host under a different account/repo, just enable GitHub Pages on your repo: Settings ▸ Pages ▸ Source ▸ Deploy from a branch ▸ main/master ▸ / (root).)*
 
 > ⚠️ You only deploy the static site to GitHub. The Google **URL and API key live in `js/config.js`**, which will be visible in your (public or private) repo and in the browser. Anyone with your link can read **and** write data. For extra protection, restrict who opens the apps-script Web App (`Anyone with Google account`), use a long API key as a deterrent for random bots, and keep photo spam limited by Drive's daily quotas. For confidential data, consider keeping the repo private.
 
@@ -87,8 +83,9 @@ Use a spreadsheet **that the Apps Script can access**: either the spreadsheet wh
 
 ## 4. Usage
 
-- **Overview** tab shows summary cards and the July-vs-August overtime trend.
+- **Overview** tab shows summary cards plus the selected overtime months comparison with % change.
 - Each data tab has **＋ Add** / **Edit** / **Delete** controls.
+- **Overtime**: each save writes one month's hours into that project's Jan–Dec row. Use the **Compare** dropdowns to view any two months side-by-side (total, average per project, % change, and per-project bars). The highlighted month columns in the table match your chosen comparison.
 - 5S form accepts multiple photos per entry (auto-resized to ≤1280 px, uploaded to Drive, then shown on the card). Click any photo for full-size view.
 - A **Refresh** button re-reads everything from Google Sheets.
 
@@ -102,6 +99,5 @@ Use a spreadsheet **that the Apps Script can access**: either the spreadsheet wh
 │   └── app.js          # layout + CRUD + upload + overview logic
 ├── apps-script/
 │   └── Code.gs         # ← paste into Google Apps Script
-├── .github/workflows/pages-deploy.yml   # optional CI deploy
 └── README.md
 ```
